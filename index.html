@@ -1,0 +1,614 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <meta name="apple-mobile-web-app-title" content="Pole Notebook" />
+  <title>Pole Dance Notebook</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;700&display=swap');
+
+    :root {
+      --bg: #0e0a14;
+      --surface: #1a1225;
+      --border: #2e2040;
+      --pink: #e84393;
+      --pink-soft: #f472b6;
+      --purple: #a855f7;
+      --blue: #60a5fa;
+      --yellow: #fbbf24;
+      --text: #f0e8ff;
+      --muted: #8b7aa8;
+      --danger: #f87171;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: 'DM Sans', sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100dvh;
+      padding: env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left);
+    }
+
+    .app {
+      max-width: 420px;
+      margin: 0 auto;
+      padding: 24px 16px 40px;
+    }
+
+    /* Header */
+    .header {
+      text-align: center;
+      margin-bottom: 24px;
+    }
+    .header h1 {
+      font-size: 22px;
+      font-weight: 700;
+      letter-spacing: 0.08em;
+      background: linear-gradient(90deg, var(--pink), var(--purple));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+    .header p {
+      font-size: 12px;
+      color: var(--muted);
+      margin-top: 4px;
+      letter-spacing: 0.05em;
+    }
+
+    /* Combo card */
+    .combo-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 18px;
+      margin-bottom: 16px;
+    }
+    .combo-label {
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 0.1em;
+      color: var(--muted);
+      margin-bottom: 12px;
+    }
+    .combo-row {
+      display: flex;
+      align-items: flex-start;
+      gap: 10px;
+      margin-bottom: 8px;
+    }
+    .combo-row:last-child { margin-bottom: 0; }
+    .combo-icon { font-size: 16px; flex-shrink: 0; margin-top: 1px; }
+    .combo-trick {
+      font-size: 15px;
+      font-weight: 500;
+      color: var(--text);
+    }
+    .combo-trick.empty { color: var(--muted); font-style: italic; font-weight: 400; }
+    .combo-stars { font-size: 11px; color: var(--yellow); margin-top: 2px; }
+
+    /* Buttons */
+    .btn-primary {
+      width: 100%;
+      padding: 14px;
+      background: linear-gradient(135deg, var(--pink), var(--purple));
+      color: #fff;
+      font-family: inherit;
+      font-size: 15px;
+      font-weight: 700;
+      border: none;
+      border-radius: 12px;
+      cursor: pointer;
+      letter-spacing: 0.02em;
+      transition: opacity 0.15s;
+    }
+    .btn-primary:active { opacity: 0.8; }
+
+    .divider {
+      height: 1px;
+      background: var(--border);
+      margin: 20px 0;
+    }
+
+    .btn-outline {
+      width: 100%;
+      padding: 12px;
+      background: transparent;
+      color: var(--pink-soft);
+      font-family: inherit;
+      font-size: 14px;
+      font-weight: 600;
+      border: 1.5px solid var(--pink);
+      border-radius: 12px;
+      cursor: pointer;
+      transition: background 0.15s;
+    }
+    .btn-outline:active { background: rgba(232,67,147,0.08); }
+
+    /* Section header */
+    .section-title {
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 0.1em;
+      color: var(--muted);
+      margin: 20px 0 10px;
+    }
+
+    /* Trick groups */
+    .group {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      margin-bottom: 10px;
+      overflow: hidden;
+    }
+    .group-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 14px 16px;
+      cursor: pointer;
+      user-select: none;
+      -webkit-tap-highlight-color: transparent;
+    }
+    .group-header-left {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .group-title { font-size: 15px; font-weight: 700; }
+    .group-count {
+      font-size: 11px;
+      color: var(--muted);
+      background: rgba(255,255,255,0.06);
+      padding: 2px 7px;
+      border-radius: 20px;
+    }
+    .group-arrow {
+      color: var(--muted);
+      font-size: 12px;
+      transition: transform 0.2s;
+    }
+    .group.open .group-arrow { transform: rotate(180deg); }
+
+    .group-body { display: none; border-top: 1px solid var(--border); }
+    .group.open .group-body { display: block; }
+
+    .trick-item {
+      display: flex;
+      align-items: center;
+      padding: 12px 16px;
+      border-bottom: 1px solid var(--border);
+      gap: 10px;
+    }
+    .trick-item:last-child { border-bottom: none; }
+    .trick-info { flex: 1; min-width: 0; }
+    .trick-name {
+      font-size: 14px;
+      font-weight: 600;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    .trick-stars { font-size: 11px; color: var(--yellow); margin-top: 2px; }
+    .trick-actions { display: flex; gap: 4px; flex-shrink: 0; }
+    .icon-btn {
+      background: none;
+      border: none;
+      cursor: pointer;
+      padding: 6px;
+      border-radius: 8px;
+      font-size: 15px;
+      transition: background 0.15s;
+      -webkit-tap-highlight-color: transparent;
+    }
+    .icon-btn:active { background: rgba(255,255,255,0.08); }
+
+    .empty-group {
+      padding: 16px;
+      text-align: center;
+      color: var(--muted);
+      font-size: 13px;
+      font-style: italic;
+    }
+
+    /* Modal */
+    .modal-overlay {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.7);
+      z-index: 100;
+      align-items: flex-end;
+      justify-content: center;
+      padding: 16px;
+      padding-bottom: calc(16px + env(safe-area-inset-bottom));
+    }
+    .modal-overlay.open { display: flex; }
+    .modal {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      padding: 24px;
+      width: 100%;
+      max-width: 420px;
+    }
+    .modal h2 {
+      font-size: 17px;
+      font-weight: 700;
+      margin-bottom: 20px;
+    }
+    .field { margin-bottom: 16px; }
+    .field label {
+      display: block;
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--muted);
+      letter-spacing: 0.06em;
+      margin-bottom: 6px;
+    }
+    .field input, .field select {
+      width: 100%;
+      padding: 12px 14px;
+      background: var(--bg);
+      border: 1.5px solid var(--border);
+      border-radius: 10px;
+      color: var(--text);
+      font-family: inherit;
+      font-size: 15px;
+      outline: none;
+      transition: border-color 0.15s;
+      -webkit-appearance: none;
+    }
+    .field input:focus, .field select:focus { border-color: var(--pink); }
+    .field select option { background: var(--surface); }
+
+    .star-row {
+      display: flex;
+      gap: 6px;
+      margin-top: 4px;
+    }
+    .star-btn {
+      font-size: 22px;
+      background: none;
+      border: none;
+      cursor: pointer;
+      padding: 4px;
+      opacity: 0.3;
+      transition: opacity 0.1s, transform 0.1s;
+      -webkit-tap-highlight-color: transparent;
+    }
+    .star-btn.active { opacity: 1; }
+    .star-btn:active { transform: scale(1.2); }
+
+    .modal-actions {
+      display: flex;
+      gap: 10px;
+      margin-top: 20px;
+    }
+    .btn-cancel {
+      flex: 1;
+      padding: 12px;
+      background: transparent;
+      color: var(--muted);
+      font-family: inherit;
+      font-size: 14px;
+      font-weight: 600;
+      border: 1.5px solid var(--border);
+      border-radius: 10px;
+      cursor: pointer;
+    }
+    .btn-save {
+      flex: 2;
+      padding: 12px;
+      background: var(--pink);
+      color: #fff;
+      font-family: inherit;
+      font-size: 14px;
+      font-weight: 700;
+      border: none;
+      border-radius: 10px;
+      cursor: pointer;
+    }
+    .btn-save:active { opacity: 0.85; }
+  </style>
+</head>
+<body>
+<div class="app">
+  <div class="header">
+    <h1>POLE DANCE NOTEBOOK</h1>
+    <p>kho trick của bạn ✨</p>
+  </div>
+
+  <!-- Combo card -->
+  <div class="combo-card">
+    <div class="combo-label">COMBO HÔM NAY</div>
+    <div class="combo-row">
+      <div class="combo-icon">🎬</div>
+      <div>
+        <div class="combo-trick empty" id="combo-intro">---</div>
+        <div class="combo-stars" id="combo-intro-stars"></div>
+      </div>
+    </div>
+    <div class="combo-row">
+      <div class="combo-icon">💎</div>
+      <div>
+        <div class="combo-trick empty" id="combo-main">---</div>
+        <div class="combo-stars" id="combo-main-stars"></div>
+      </div>
+    </div>
+    <div class="combo-row">
+      <div class="combo-icon">🏁</div>
+      <div>
+        <div class="combo-trick empty" id="combo-outro">---</div>
+        <div class="combo-stars" id="combo-outro-stars"></div>
+      </div>
+    </div>
+  </div>
+
+  <button class="btn-primary" onclick="randomCombo()">Nay đi combo nào? 🎲</button>
+
+  <div class="divider"></div>
+
+  <button class="btn-outline" onclick="openAddModal()">＋ Thêm trick mới</button>
+
+  <div class="section-title">KHO TRICK CỦA BẠN</div>
+
+  <!-- Groups -->
+  <div class="group open" id="group-intro">
+    <div class="group-header" onclick="toggleGroup('group-intro')">
+      <div class="group-header-left">
+        <span class="group-title" style="color:#f472b6">Intro 🎬</span>
+        <span class="group-count" id="count-intro">0</span>
+      </div>
+      <span class="group-arrow">▼</span>
+    </div>
+    <div class="group-body" id="body-intro"></div>
+  </div>
+
+  <div class="group open" id="group-main">
+    <div class="group-header" onclick="toggleGroup('group-main')">
+      <div class="group-header-left">
+        <span class="group-title" style="color:#c084fc">Main Trick 💎</span>
+        <span class="group-count" id="count-main">0</span>
+      </div>
+      <span class="group-arrow">▼</span>
+    </div>
+    <div class="group-body" id="body-main"></div>
+  </div>
+
+  <div class="group open" id="group-outro">
+    <div class="group-header" onclick="toggleGroup('group-outro')">
+      <div class="group-header-left">
+        <span class="group-title" style="color:#93c5fd">Outro 🏁</span>
+        <span class="group-count" id="count-outro">0</span>
+      </div>
+      <span class="group-arrow">▼</span>
+    </div>
+    <div class="group-body" id="body-outro"></div>
+  </div>
+</div>
+
+<!-- Add/Edit Modal -->
+<div class="modal-overlay" id="modal" onclick="closeModalOnBg(event)">
+  <div class="modal">
+    <h2 id="modal-title">Thêm Trick Mới ⭐</h2>
+    <div class="field">
+      <label>TÊN ĐỘNG TÁC</label>
+      <input type="text" id="input-name" placeholder="Ví dụ: Superman..." />
+    </div>
+    <div class="field">
+      <label>NHÓM</label>
+      <select id="input-group">
+        <option value="Intro">Intro 🎬</option>
+        <option value="Main Trick">Main Trick 💎</option>
+        <option value="Outro">Outro 🏁</option>
+      </select>
+    </div>
+    <div class="field">
+      <label>ĐỘ KHÓ</label>
+      <div class="star-row" id="star-row">
+        <button class="star-btn active" onclick="setStars(1)">⭐</button>
+        <button class="star-btn active" onclick="setStars(2)">⭐</button>
+        <button class="star-btn active" onclick="setStars(3)">⭐</button>
+        <button class="star-btn" onclick="setStars(4)">⭐</button>
+        <button class="star-btn" onclick="setStars(5)">⭐</button>
+      </div>
+    </div>
+    <div class="modal-actions">
+      <button class="btn-cancel" onclick="closeModal()">Hủy</button>
+      <button class="btn-save" onclick="saveTrick()">LƯU LẠI</button>
+    </div>
+  </div>
+</div>
+
+<script>
+  const STORAGE_KEY = 'poledance_kho_trick';
+
+  const DEFAULT_DATA = {
+    "Intro": [
+      { name: "Đi bộ quanh cột", difficulty: 1 },
+      { name: "Xoay hông dạo đầu", difficulty: 1 }
+    ],
+    "Main Trick": [
+      { name: "Superman", difficulty: 4 },
+      { name: "Scorpio", difficulty: 3 }
+    ],
+    "Outro": [
+      { name: "Floorwork", difficulty: 2 }
+    ]
+  };
+
+  // --- Storage ---
+  function loadData() {
+    try {
+      const raw = localStorage.getItem(STORAGE_KEY);
+      if (raw) return JSON.parse(raw);
+    } catch(e) {}
+    return JSON.parse(JSON.stringify(DEFAULT_DATA));
+  }
+
+  function saveData() {
+    try {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(kho));
+    } catch(e) {
+      alert('Không thể lưu dữ liệu: ' + e.message);
+    }
+  }
+
+  let kho = loadData();
+
+  // --- Render ---
+  function stars(n) { return '⭐'.repeat(n); }
+
+  function renderGroup(groupKey, bodyId, countId) {
+    const body = document.getElementById(bodyId);
+    const count = document.getElementById(countId);
+    const items = kho[groupKey];
+    count.textContent = items.length;
+
+    if (items.length === 0) {
+      body.innerHTML = '<div class="empty-group">Chưa có trick nào. Thêm ngay!</div>';
+      return;
+    }
+
+    body.innerHTML = items.map((item, idx) => `
+      <div class="trick-item">
+        <div class="trick-info">
+          <div class="trick-name">${escHtml(item.name)}</div>
+          <div class="trick-stars">${stars(item.difficulty)}</div>
+        </div>
+        <div class="trick-actions">
+          <button class="icon-btn" onclick="openEditModal('${escAttr(groupKey)}', ${idx})" title="Sửa">✏️</button>
+          <button class="icon-btn" onclick="deleteTrick('${escAttr(groupKey)}', ${idx})" title="Xóa">🗑️</button>
+        </div>
+      </div>
+    `).join('');
+  }
+
+  function renderAll() {
+    renderGroup('Intro', 'body-intro', 'count-intro');
+    renderGroup('Main Trick', 'body-main', 'count-main');
+    renderGroup('Outro', 'body-outro', 'count-outro');
+  }
+
+  function escHtml(str) {
+    return str.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+  }
+  function escAttr(str) {
+    return str.replace(/'/g, "\\'");
+  }
+
+  // --- Actions ---
+  function deleteTrick(groupKey, idx) {
+    if (!confirm(`Xóa "${kho[groupKey][idx].name}"?`)) return;
+    kho[groupKey].splice(idx, 1);
+    saveData();
+    renderAll();
+  }
+
+  function randomCombo() {
+    const groups = ['Intro', 'Main Trick', 'Outro'];
+    const ids = ['intro', 'main', 'outro'];
+    let allHave = groups.every(g => kho[g].length > 0);
+    if (!allHave) {
+      document.getElementById('combo-main').textContent = '⚠️ Hãy thêm đủ trick vào 3 nhóm!';
+      document.getElementById('combo-main').classList.add('empty');
+      document.getElementById('combo-intro').textContent = '---';
+      document.getElementById('combo-outro').textContent = '---';
+      ['intro','main','outro'].forEach(id => document.getElementById(`combo-${id}-stars`).textContent = '');
+      return;
+    }
+    groups.forEach((g, i) => {
+      const item = kho[g][Math.floor(Math.random() * kho[g].length)];
+      const el = document.getElementById(`combo-${ids[i]}`);
+      el.textContent = item.name;
+      el.classList.remove('empty');
+      document.getElementById(`combo-${ids[i]}-stars`).textContent = stars(item.difficulty);
+    });
+  }
+
+  function toggleGroup(id) {
+    document.getElementById(id).classList.toggle('open');
+  }
+
+  // --- Modal ---
+  let editMode = false;
+  let editGroup = null;
+  let editIdx = null;
+  let currentStars = 3;
+
+  function setStars(n) {
+    currentStars = n;
+    document.querySelectorAll('.star-btn').forEach((btn, i) => {
+      btn.classList.toggle('active', i < n);
+    });
+  }
+
+  function openAddModal() {
+    editMode = false;
+    editGroup = null;
+    editIdx = null;
+    document.getElementById('modal-title').textContent = 'Thêm Trick Mới ⭐';
+    document.getElementById('input-name').value = '';
+    document.getElementById('input-group').value = 'Intro';
+    setStars(3);
+    document.getElementById('modal').classList.add('open');
+    setTimeout(() => document.getElementById('input-name').focus(), 100);
+  }
+
+  function openEditModal(groupKey, idx) {
+    editMode = true;
+    editGroup = groupKey;
+    editIdx = idx;
+    const item = kho[groupKey][idx];
+    document.getElementById('modal-title').textContent = 'Chỉnh Sửa Trick ✏️';
+    document.getElementById('input-name').value = item.name;
+    document.getElementById('input-group').value = groupKey;
+    setStars(item.difficulty);
+    document.getElementById('modal').classList.add('open');
+    setTimeout(() => document.getElementById('input-name').focus(), 100);
+  }
+
+  function closeModal() {
+    document.getElementById('modal').classList.remove('open');
+  }
+
+  function closeModalOnBg(e) {
+    if (e.target.id === 'modal') closeModal();
+  }
+
+  function saveTrick() {
+    const name = document.getElementById('input-name').value.trim();
+    const group = document.getElementById('input-group').value;
+    if (!name) {
+      document.getElementById('input-name').focus();
+      return;
+    }
+
+    if (editMode) {
+      // Nếu đổi nhóm thì xóa khỏi nhóm cũ và thêm vào nhóm mới
+      if (editGroup !== group) {
+        kho[editGroup].splice(editIdx, 1);
+        kho[group].push({ name, difficulty: currentStars });
+      } else {
+        kho[group][editIdx] = { name, difficulty: currentStars };
+      }
+    } else {
+      kho[group].push({ name, difficulty: currentStars });
+    }
+
+    saveData();
+    renderAll();
+    closeModal();
+  }
+
+  // Init
+  renderAll();
+</script>
+</body>
+</html>
