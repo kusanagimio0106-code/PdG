@@ -345,6 +345,96 @@
       color: #8b7aa8;
       letter-spacing: 0.1em;
     }
+
+    /* Photo upload */
+    .photo-upload-area {
+      border: 2px dashed var(--border);
+      border-radius: 10px;
+      padding: 14px;
+      text-align: center;
+      cursor: pointer;
+      transition: border-color 0.15s;
+      position: relative;
+      overflow: hidden;
+    }
+    .photo-upload-area:hover { border-color: var(--pink); }
+    .photo-upload-area input[type=file] {
+      position: absolute; inset: 0; opacity: 0; cursor: pointer; width: 100%; height: 100%;
+    }
+    .photo-upload-area .upload-hint { font-size: 13px; color: var(--muted); }
+    .photo-upload-area .upload-hint span { font-size: 20px; display: block; margin-bottom: 4px; }
+    .photo-preview {
+      width: 100%; max-height: 160px; object-fit: cover;
+      border-radius: 8px; display: none;
+    }
+    .photo-preview.show { display: block; }
+    .photo-remove {
+      position: absolute; top: 6px; right: 6px;
+      background: rgba(0,0,0,0.6); border: none; border-radius: 50%;
+      color: #fff; font-size: 14px; width: 24px; height: 24px;
+      cursor: pointer; display: none; align-items: center; justify-content: center;
+    }
+    .photo-remove.show { display: flex; }
+
+    /* Trick photo in list */
+    .trick-photo {
+      width: 44px; height: 44px; object-fit: cover;
+      border-radius: 8px; flex-shrink: 0;
+    }
+
+    /* Image upload */
+    .img-upload-area {
+      border: 1.5px dashed var(--border);
+      border-radius: 10px;
+      padding: 14px;
+      text-align: center;
+      cursor: pointer;
+      transition: border-color 0.15s;
+      position: relative;
+      overflow: hidden;
+    }
+    .img-upload-area:active { border-color: var(--pink); }
+    .img-upload-area input[type=file] {
+      position: absolute;
+      inset: 0;
+      opacity: 0;
+      cursor: pointer;
+      width: 100%;
+      height: 100%;
+    }
+    .img-upload-label {
+      font-size: 13px;
+      color: var(--muted);
+      pointer-events: none;
+    }
+    .img-preview {
+      width: 100%;
+      max-height: 140px;
+      object-fit: cover;
+      border-radius: 8px;
+      display: none;
+      margin-top: 8px;
+    }
+    .img-clear-btn {
+      display: none;
+      margin-top: 6px;
+      background: none;
+      border: none;
+      color: var(--danger);
+      font-size: 12px;
+      cursor: pointer;
+      font-family: inherit;
+    }
+
+    /* Thumbnail in list */
+    .trick-thumb {
+      width: 48px;
+      height: 48px;
+      border-radius: 8px;
+      object-fit: cover;
+      flex-shrink: 0;
+    }
+
   </style>
 </head>
 <body>
@@ -453,6 +543,27 @@
         <button class="star-btn" onclick="setStars(5)">⭐</button>
       </div>
     </div>
+    <div class="field">
+      <label>ẢNH (TÙY CHỌN)</label>
+      <div class="photo-upload-area" id="upload-area">
+        <input type="file" id="input-photo" accept="image/*" onchange="handlePhotoUpload(event)" />
+        <img class="photo-preview" id="photo-preview" src="" alt="" />
+        <button class="photo-remove" id="photo-remove" onclick="removePhoto(event)">✕</button>
+        <div class="upload-hint" id="upload-hint">
+          <span>📷</span>Bấm để chọn ảnh
+        </div>
+      </div>
+    </div>
+    
+    <div class="field">
+      <label>ẢNH (TÙY CHỌN)</label>
+      <div class="img-upload-area" id="upload-area">
+        <input type="file" id="input-img" accept="image/*" onchange="handleImgUpload(event)" />
+        <div class="img-upload-label" id="upload-label">📷 Chọn ảnh từ thư viện</div>
+        <img id="img-preview" class="img-preview" src="" alt="" />
+        <button class="img-clear-btn" id="img-clear" onclick="clearImg(event)">✕ Xóa ảnh</button>
+      </div>
+    </div>
     <div class="modal-actions">
       <button class="btn-cancel" onclick="closeModal()">Hủy</button>
       <button class="btn-save" onclick="saveTrick()">LƯU LẠI</button>
@@ -512,6 +623,7 @@
 
     body.innerHTML = items.map((item, idx) => `
       <div class="trick-item">
+        ${item.image ? '<img class=\"trick-thumb\" src=\"' + item.image + '\" alt=\"\" />' : ''}
         <div class="trick-info">
           <div class="trick-name">${escHtml(item.name)}</div>
           <div class="trick-stars">${stars(item.difficulty)}</div>
@@ -574,6 +686,37 @@
   let editMode = false;
   let editGroup = null;
   let editIdx = null;
+
+  let currentImage = null;
+
+  function handleImgUpload(e) {
+    const file = e.target.files[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = function(ev) {
+      currentImage = ev.target.result;
+      document.getElementById('img-preview').src = currentImage;
+      document.getElementById('img-preview').style.display = 'block';
+      document.getElementById('upload-label').style.display = 'none';
+      document.getElementById('img-clear').style.display = 'inline-block';
+    };
+    reader.readAsDataURL(file);
+  }
+
+  function clearImg(e) {
+    e.stopPropagation();
+    currentImage = null;
+    document.getElementById('input-img').value = '';
+    document.getElementById('img-preview').style.display = 'none';
+    document.getElementById('img-preview').src = '';
+    document.getElementById('upload-label').style.display = 'block';
+    document.getElementById('img-clear').style.display = 'none';
+  }
+
+  function resetImgUpload() {
+    clearImg({ stopPropagation: () => {} });
+  }
+
   let currentStars = 3;
 
   function setStars(n) {
@@ -591,6 +734,8 @@
     document.getElementById('input-name').value = '';
     document.getElementById('input-group').value = 'Intro';
     setStars(3);
+    resetPhotoUI(null);
+    resetImgUpload();
     document.getElementById('modal').classList.add('open');
     setTimeout(() => document.getElementById('input-name').focus(), 100);
   }
@@ -604,6 +749,26 @@
     document.getElementById('input-name').value = item.name;
     document.getElementById('input-group').value = groupKey;
     setStars(item.difficulty);
+    // Load existing image if any
+    if (trick_item && trick_item.image) {
+      currentImage = trick_item.image;
+      document.getElementById('img-preview').src = currentImage;
+      document.getElementById('img-preview').style.display = 'block';
+      document.getElementById('upload-label').style.display = 'none';
+      document.getElementById('img-clear').style.display = 'inline-block';
+    } else {
+      resetImgUpload();
+    }
+    // Load existing image if any
+    if (trick_item && trick_item.image) {
+      currentImage = trick_item.image;
+      document.getElementById('img-preview').src = currentImage;
+      document.getElementById('img-preview').style.display = 'block';
+      document.getElementById('upload-label').style.display = 'none';
+      document.getElementById('img-clear').style.display = 'inline-block';
+    } else {
+      resetImgUpload();
+    }
     document.getElementById('modal').classList.add('open');
     setTimeout(() => document.getElementById('input-name').focus(), 100);
   }
@@ -624,16 +789,19 @@
       return;
     }
 
+    const entry = { name, difficulty: currentStars };
+    if (currentImage) entry.image = currentImage;
+
     if (editMode) {
       // Nếu đổi nhóm thì xóa khỏi nhóm cũ và thêm vào nhóm mới
       if (editGroup !== group) {
         kho[editGroup].splice(editIdx, 1);
-        kho[group].push({ name, difficulty: currentStars });
+        kho[group].push(entry);
       } else {
-        kho[group][editIdx] = { name, difficulty: currentStars };
+        kho[group][editIdx] = entry;
       }
     } else {
-      kho[group].push({ name, difficulty: currentStars });
+      kho[group].push(entry);
     }
 
     saveData();
@@ -650,6 +818,51 @@
       setTimeout(function() { ls.style.display = 'none'; }, 500);
     }, 2000);
   });
+
+
+  // Photo handling
+  let currentPhotoBase64 = null;
+
+  function handlePhotoUpload(event) {
+    const file = event.target.files[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = function(e) {
+      currentPhotoBase64 = e.target.result;
+      document.getElementById('photo-preview').src = currentPhotoBase64;
+      document.getElementById('photo-preview').classList.add('show');
+      document.getElementById('photo-remove').classList.add('show');
+      document.getElementById('upload-hint').style.display = 'none';
+    };
+    reader.readAsDataURL(file);
+  }
+
+  function removePhoto(e) {
+    e.stopPropagation();
+    currentPhotoBase64 = null;
+    document.getElementById('photo-preview').classList.remove('show');
+    document.getElementById('photo-remove').classList.remove('show');
+    document.getElementById('upload-hint').style.display = '';
+    document.getElementById('input-photo').value = '';
+  }
+
+  function resetPhotoUI(existingPhoto) {
+    currentPhotoBase64 = existingPhoto || null;
+    const preview = document.getElementById('photo-preview');
+    const removeBtn = document.getElementById('photo-remove');
+    const hint = document.getElementById('upload-hint');
+    if (existingPhoto) {
+      preview.src = existingPhoto;
+      preview.classList.add('show');
+      removeBtn.classList.add('show');
+      hint.style.display = 'none';
+    } else {
+      preview.classList.remove('show');
+      removeBtn.classList.remove('show');
+      hint.style.display = '';
+      document.getElementById('input-photo').value = '';
+    }
+  }
 
   // Init
   renderAll();
