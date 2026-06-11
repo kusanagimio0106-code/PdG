@@ -147,17 +147,17 @@
     /* Photo upload */
     .photo-upload {
       border: 1.5px dashed var(--border); border-radius: 10px;
-      overflow: hidden; cursor: pointer; position: relative;
+      overflow: hidden;
     }
-    .photo-upload input[type=file] {
-      position: absolute; inset: 0; opacity: 0; cursor: pointer; width: 100%; height: 100%;
-    }
-    .photo-hint {
-      padding: 18px; text-align: center; font-size: 13px; color: var(--muted);
+    #input-photo { display: none; }
+    .photo-hint-btn {
+      display: block; width: 100%; padding: 18px;
+      text-align: center; font-size: 13px; color: var(--muted);
+      cursor: pointer; background: none; border: none; font-family: inherit;
     }
     .photo-preview-wrap { display: none; position: relative; }
     .photo-preview-wrap.show { display: block; }
-    .photo-preview-wrap img { width: 100%; max-height: 160px; object-fit: cover; display: block; }
+    .photo-preview-wrap img { width: 100%; max-height: 160px; object-fit: cover; display: block; cursor: pointer; }
     .photo-remove {
       position: absolute; top: 6px; right: 6px;
       background: rgba(0,0,0,0.6); color: #fff; border: none;
@@ -289,9 +289,9 @@
       <label>ẢNH (TÙY CHỌN)</label>
       <div class="photo-upload" id="photo-upload">
         <input type="file" id="input-photo" accept="image/*" onchange="handlePhoto(event)" />
-        <div class="photo-hint" id="photo-hint">📷 Bấm để chọn ảnh</div>
+        <button class="photo-hint-btn" id="photo-hint" onclick="document.getElementById('input-photo').click()">📷 Bấm để chọn ảnh</button>
         <div class="photo-preview-wrap" id="photo-preview-wrap">
-          <img id="photo-preview" src="" alt="" />
+          <img id="photo-preview" src="" alt="" onclick="document.getElementById('input-photo').click()" style="cursor:pointer" />
           <button class="photo-remove" onclick="removePhoto(event)">✕</button>
         </div>
       </div>
