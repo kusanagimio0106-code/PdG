@@ -669,15 +669,28 @@
       document.getElementById('combo-main').classList.add('empty');
       document.getElementById('combo-intro').textContent = '---';
       document.getElementById('combo-outro').textContent = '---';
-      ['intro','main','outro'].forEach(id => document.getElementById(`combo-${id}-stars`).textContent = '');
+      ids.forEach(id => {
+        document.getElementById('combo-' + id + '-stars').textContent = '';
+        var img = document.getElementById('combo-' + id + '-img');
+        img.src = ''; img.classList.remove('visible');
+      });
       return;
     }
     groups.forEach((g, i) => {
       const item = kho[g][Math.floor(Math.random() * kho[g].length)];
-      const el = document.getElementById(`combo-${ids[i]}`);
+      const el = document.getElementById('combo-' + ids[i]);
       el.textContent = item.name;
       el.classList.remove('empty');
-      document.getElementById(`combo-${ids[i]}-stars`).textContent = stars(item.difficulty);
+      document.getElementById('combo-' + ids[i] + '-stars').textContent = stars(item.difficulty);
+      // Show image thumbnail if available
+      var imgEl = document.getElementById('combo-' + ids[i] + '-img');
+      if (item.image) {
+        imgEl.src = item.image;
+        imgEl.classList.add('visible');
+      } else {
+        imgEl.src = '';
+        imgEl.classList.remove('visible');
+      }
     });
   }
 
