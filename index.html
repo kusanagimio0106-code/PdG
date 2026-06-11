@@ -621,19 +621,22 @@
       return;
     }
 
-    body.innerHTML = items.map((item, idx) => `
-      <div class="trick-item">
-        ${item.image ? '<img class=\"trick-thumb\" src=\"' + item.image + '\" alt=\"\" />' : ''}
-        <div class="trick-info">
-          <div class="trick-name">${escHtml(item.name)}</div>
-          <div class="trick-stars">${stars(item.difficulty)}</div>
-        </div>
-        <div class="trick-actions">
-          <button class="icon-btn" onclick="openEditModal('${escAttr(groupKey)}', ${idx})" title="Sửa">✏️</button>
-          <button class="icon-btn" onclick="deleteTrick('${escAttr(groupKey)}', ${idx})" title="Xóa">🗑️</button>
-        </div>
-      </div>
-    `).join('');
+    body.innerHTML = items.map(function(item, idx) {
+      var thumb = item.image
+        ? '<img class="trick-thumb" src="' + item.image + '" alt="" />'
+        : '';
+      return '<div class="trick-item">'
+        + thumb
+        + '<div class="trick-info">'
+        + '<div class="trick-name">' + escHtml(item.name) + '</div>'
+        + '<div class="trick-stars">' + stars(item.difficulty) + '</div>'
+        + '</div>'
+        + '<div class="trick-actions">'
+        + '<button class="icon-btn" onclick="openEditModal(\'' + escAttr(groupKey) + '\', ' + idx + ')" title="Sửa">✏️</button>'
+        + '<button class="icon-btn" onclick="deleteTrick(\'' + escAttr(groupKey) + '\', ' + idx + ')" title="Xóa">🗑️</button>'
+        + '</div>'
+        + '</div>';
+    }).join('');
   }
 
   function renderAll() {
